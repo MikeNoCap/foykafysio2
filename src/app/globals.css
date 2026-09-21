@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand */
+  --color-primary: #0caba8;
+  --color-primary-dark: #098a88;
+  --color-secondary: #023535;
+  --color-ink: #015958;
+  /* Supporting tints derived from the brand teal */
+  --color-mint-50: #f3fbfa;
+  --color-mint-100: #e2f6f5;
+  --color-mint-200: #c2ebea;
+  --color-mint-300: #8fdad8;
+  --color-sand: #fbf7f1;
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), var(--font-body), ui-sans-serif, sans-serif;
+
+  --radius-blob: 42% 58% 55% 45% / 48% 42% 58% 52%;
+  --shadow-soft: 0 10px 40px -12px rgb(2 53 53 / 0.18);
+  --shadow-cta: 0 10px 30px -8px rgb(12 171 168 / 0.65);
+}
+
+@layer base {
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6.5rem;
+}
+
+body {
+  background: var(--color-mint-50);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--color-secondary);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: #fff;
+}
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+  .eyebrow {
+    @apply font-display text-sm font-semibold uppercase tracking-[0.18em] text-primary-dark;
+  }
+  .h1 {
+    @apply font-display text-4xl font-extrabold sm:text-5xl lg:text-6xl;
+  }
+  .h2 {
+    @apply font-display text-3xl font-extrabold sm:text-4xl;
+  }
+  .lead {
+    @apply text-lg sm:text-xl;
+  }
+
+  .btn {
+    @apply inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-full px-6 py-3 text-center font-display text-base font-bold leading-tight no-underline sm:whitespace-nowrap transition duration-200;
+  }
+  /* THE booking button: reserved for Hege's osteopathy/ultrasound booking. */
+  .btn-book {
+    @apply bg-primary text-secondary shadow-cta hover:-translate-y-0.5 hover:bg-[#10c2be] active:translate-y-0;
+  }
+  .btn-lg {
+    @apply min-h-14 px-8 py-4 text-lg;
+  }
+  .btn-dark {
+    @apply bg-secondary text-white hover:bg-ink;
+  }
+  .btn-outline {
+    @apply border-2 border-secondary/80 text-secondary hover:bg-secondary hover:text-white;
+  }
+  .btn-outline-light {
+    @apply border-2 border-white/70 text-white hover:bg-white hover:text-secondary;
+  }
+
+  .card {
+    @apply rounded-[2rem] bg-white p-6 shadow-soft sm:p-8;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold;
+  }
+  .link {
+    @apply font-semibold text-ink underline decoration-primary decoration-2 underline-offset-4 hover:text-secondary hover:decoration-secondary;
+  }
+
+  .prose-ff p { @apply mb-5; }
+  .prose-ff h2 { @apply mt-12 mb-4 font-display text-2xl font-extrabold sm:text-3xl; }
+  .prose-ff h3 { @apply mt-8 mb-3 font-display text-xl font-bold; }
+  .prose-ff a { @apply font-semibold text-ink underline decoration-primary decoration-2 underline-offset-4 hover:text-secondary; }
+}
+
+.blob {
+  border-radius: var(--radius-blob);
+}
+.blob-2 {
+  border-radius: 58% 42% 38% 62% / 45% 55% 45% 55%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
