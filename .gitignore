@@ -20,6 +20,9 @@
 # production
 /build
 
+# content edited in /admin (lives on the server, see README)
+/data/
+
 # misc
 .DS_Store
 *.pem

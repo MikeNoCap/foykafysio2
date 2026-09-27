@@ -2,7 +2,9 @@ import Image from "next/image";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { CookieSettingsButton } from "@/components/CookieConsent";
 import { EVENTS } from "@/lib/analytics";
-import { clinic, services } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { services } from "@/lib/site";
+import { EmailText, PhoneText } from "@/components/ContactText";
 
 const pageLinks = [
   { label: "Hvem er vi", href: "/#hvem-er-vi" },
@@ -14,6 +16,7 @@ const pageLinks = [
 ];
 
 export function Footer() {
+  const { clinic } = getContent();
   const navLink = (label: string, href: string) => (
     <li key={href}>
       <TrackedLink
@@ -50,14 +53,18 @@ export function Footer() {
           <address className="grid gap-2 not-italic text-white/85">
             <p>
               {clinic.street}, {clinic.postalCode} {clinic.city}
-              <br />
-              <span className="text-sm text-white/70">{clinic.addressNote}</span>
+              {clinic.addressNote && (
+                <>
+                  <br />
+                  <span className="text-sm text-white/70">{clinic.addressNote}</span>
+                </>
+              )}
             </p>
             <TrackedLink href={clinic.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "footer", therapist: "clinic" }} className="font-semibold hover:underline">
-              {clinic.phone}
+              <PhoneText>{clinic.phone}</PhoneText>
             </TrackedLink>
             <TrackedLink href={`mailto:${clinic.email}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location: "footer", therapist: "clinic" }} className="font-semibold hover:underline">
-              {clinic.email}
+              <EmailText>{clinic.email}</EmailText>
             </TrackedLink>
           </address>
           <TrackedLink href="/bestill-time" event={EVENTS.CLICKED_CTA} eventProps={{ cta: "bestill_time", location: "footer" }} className="btn btn-outline-light mt-5">

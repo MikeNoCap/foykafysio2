@@ -92,6 +92,10 @@ h1, h2, h3, h4 {
     @apply border-2 border-white/70 text-white hover:bg-white hover:text-secondary;
   }
 
+  .admin-input {
+    @apply min-h-11 w-full rounded-xl border-2 border-mint-200 bg-white px-3 py-2 text-base font-normal text-secondary focus:border-primary-dark;
+  }
+
   .card {
     @apply rounded-[2rem] bg-white p-6 shadow-soft sm:p-8;
   }

@@ -6,12 +6,11 @@ import { BookingButton } from "@/components/BookingButton";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { Phone } from "@/components/Icons";
 import { EVENTS } from "@/lib/analytics";
-import { hege } from "@/lib/site";
 
 /** Sticky bottom CTA on mobile. Only on Hege's funnel pages – not on the landing page or the municipal info pages. */
 const PATHS = ["/osteopati", "/ultralyd"];
 
-export function MobileBookingBar() {
+export function MobileBookingBar({ hege }: { hege: { name: string; phoneHref: string } }) {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 

@@ -21,11 +21,12 @@ export const clinic = {
   shortName: "Føyka",
   tagline: "Din partner for bedre helse og bevegelse i Asker",
   description:
-    "Fysikalsk institutt i Asker sentrum med driftsavtale med Asker kommune. Allmenn fysioterapi, psykomotorisk fysioterapi og kvinnehelse – du betaler kun egenandel. Vi har også privat osteopat.",
+    "Fysikalsk institutt i Asker sentrum. Allmenn fysioterapi, psykomotorisk fysioterapi og kvinnehelse med kommunal driftsavtale, og privat osteopat og fysioterapeut med time raskt.",
   street: "Erteløkka 1",
   postalCode: "1384",
   city: "Asker",
-  addressNote: "NB! Inngang fra parkeringshuset",
+  /** Optional extra line under the address. Editable in /admin. */
+  addressNote: "",
   phone: "66 78 04 11",
   phoneHref: "tel:+4766780411",
   email: "kontakt@foykafysio.no",
@@ -33,7 +34,7 @@ export const clinic = {
     "https://www.google.com/maps/search/?api=1&query=Ertel%C3%B8kka%201%2C%201384%20Asker",
   mapsEmbedUrl:
     "https://maps.google.com/maps?hl=no&q=Ertel%C3%B8kka%201,%201384%20Asker&z=15&output=embed",
-} as const;
+};
 
 export type Therapist = {
   id: string;
@@ -92,8 +93,8 @@ export const therapists: Therapist[] = [
     fields: ["Psykomotorisk fysioterapi"],
     qualifications: [],
     email: "havard@foykafysio.no",
-    phone: "66 78 04 11",
-    phoneHref: "tel:+4766780411",
+    phone: "950 29 414",
+    phoneHref: "tel:+4795029414",
     agreement: "kommunal",
   },
 ];
@@ -148,6 +149,12 @@ export const prices: Price[] = [
 ];
 
 export const formatPrice = (n: number) => `${n},-`;
+
+/** "66 78 04 11" -> "tel:+4766780411". Used when phone numbers are edited in /admin. */
+export const phoneToHref = (phone: string) => {
+  const digits = phone.replace(/[^\d+]/g, "");
+  return `tel:${digits.startsWith("+") ? digits : `+47${digits}`}`;
+};
 
 export const mainNav = [
   { label: "Fysioterapi", href: "/allmenn-fysioterapi" },

@@ -19,6 +19,21 @@ const nextConfig: NextConfig = {
   // Required so PostHog's trailing-slash API requests aren't redirected.
   skipTrailingSlashRedirect: true,
 
+  // /admin: never cached, never indexed, never framed.
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+    ];
+  },
+
   // Old URLs / likely guesses -> canonical pages, to keep SEO equity.
   async redirects() {
     return [

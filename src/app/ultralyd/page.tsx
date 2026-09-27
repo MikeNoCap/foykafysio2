@@ -7,16 +7,24 @@ import { PriceList } from "@/components/PriceList";
 import { BookingCtaBand, CheckList } from "@/components/Sections";
 import { EVENTS } from "@/lib/analytics";
 import { breadcrumbJsonLd } from "@/lib/seo";
-import { hege } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { formatPrice } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Ultralydundersøkelse i Asker – muskler, sener og ledd",
-  description:
-    "Ultralydundersøkelse av muskler, sener og ledd hos Føyka i Asker sentrum. Time raskt, ingen henvisning. 30 minutter 1100,- / 60 minutter 1500,-.",
-  alternates: { canonical: "/ultralyd" },
-};
+export function generateMetadata(): Metadata {
+  // Prices are editable in /admin, and the rows may have been removed.
+  const { priceOf } = getContent();
+  const [short, long] = [priceOf("ultralyd-30"), priceOf("ultralyd-60")];
+  const priceText =
+    short !== undefined && long !== undefined ? ` 30 minutter ${formatPrice(short)} / 60 minutter ${formatPrice(long)}.` : "";
+  return {
+    title: "Ultralydundersøkelse i Asker – muskler, sener og ledd",
+    description: `Ultralydundersøkelse av muskler, sener og ledd hos Føyka i Asker sentrum. Time raskt, ingen henvisning.${priceText}`,
+    alternates: { canonical: "/ultralyd" },
+  };
+}
 
 export default function UltralydPage() {
+  const { hege } = getContent();
   return (
     <>
       <TrackPageView event={EVENTS.VIEWED_ULTRALYD_PAGE} funnelStep="service_page_viewed" eventProps={{ service: "ultralyd" }} />

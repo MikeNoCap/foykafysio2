@@ -4,16 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookingButton } from "@/components/BookingButton";
+import { BookingMenu, BookingOptions } from "@/components/BookingMenu";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
-import { Calendar, Close, Menu, Phone, Pin } from "@/components/Icons";
+import { Close, Menu, Phone, Pin } from "@/components/Icons";
 import { EVENTS, track } from "@/lib/analytics";
-import { clinic, mainNav } from "@/lib/site";
+import { clinic as staticClinic, mainNav } from "@/lib/site";
+import { PhoneText } from "@/components/ContactText";
 
-/** On Hege's funnel pages the header CTA books her directly; elsewhere it opens the booking hub. */
+/** On Hege's funnel pages the private option is listed first in the booking choices. */
 const FUNNEL_PATHS = ["/osteopati", "/ultralyd"];
 
-export function Header() {
+/** `phone`/`phoneHref`/`email` come from the layout because they are editable in /admin (see lib/content.ts). */
+export function Header({ phone, phoneHref, email }: { phone: string; phoneHref: string; email: string }) {
+  const clinic = { ...staticClinic, phone, phoneHref, email };
   const pathname = usePathname();
   // Menu is "open at a path", so it closes by itself on navigation.
   const [openAt, setOpenAt] = useState<string | null>(null);
@@ -33,27 +36,12 @@ export function Header() {
     setOpen(!open);
   };
 
-  const cta = (location: string, className = "") =>
-    inFunnel ? (
-      <BookingButton location={location} label="Bestill time" className={className} />
-    ) : (
-      <TrackedLink
-        href="/bestill-time"
-        event={EVENTS.CLICKED_CTA}
-        eventProps={{ cta: "bestill_time", location }}
-        className={`btn btn-book ${className}`}
-      >
-        <Calendar />
-        Bestill time
-      </TrackedLink>
-    );
-
   return (
     <header className="sticky top-0 z-40 border-b border-mint-200/70 bg-white/90 backdrop-blur-md">
       <div className="hidden bg-secondary text-sm text-white/90 md:block on-dark">
         <div className="container-page flex items-center justify-between py-1.5">
           <p className="flex items-center gap-1.5">
-            <Pin width={16} height={16} /> {clinic.street}, {clinic.postalCode} {clinic.city} · Driftsavtale med Asker kommune
+            <Pin width={16} height={16} /> {clinic.street}, {clinic.postalCode} {clinic.city} · Fysioterapi med kommunal driftsavtale · Privat osteopat
           </p>
           <TrackedLink
             href={clinic.phoneHref}
@@ -61,7 +49,7 @@ export function Header() {
             eventProps={{ location: "topbar", therapist: "clinic" }}
             className="flex items-center gap-1.5 font-semibold hover:underline"
           >
-            <Phone width={16} height={16} /> {clinic.phone}
+            <Phone width={16} height={16} /> <PhoneText>{clinic.phone}</PhoneText>
           </TrackedLink>
         </div>
       </div>
@@ -97,7 +85,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {cta("header", "min-h-11 px-4 text-sm sm:min-h-12 sm:px-6 sm:text-base")}
+          <BookingMenu clinicEmail={clinic.email} privateFirst={inFunnel} className="min-h-11 px-3.5 text-sm whitespace-nowrap min-[360px]:px-4 sm:min-h-12 sm:px-6 sm:text-base" />
           <button
             type="button"
             onClick={toggle}
@@ -129,14 +117,16 @@ export function Header() {
             ))}
           </ul>
           <div className="mt-4 grid gap-3">
-            {cta("mobile_menu", "w-full")}
+            <p className="font-display font-bold text-secondary">Bestill time</p>
+            <BookingOptions location="mobile_menu" clinicEmail={clinic.email} privateFirst={inFunnel} onNavigate={() => setOpen(false)} />
             <TrackedLink
               href={clinic.phoneHref}
               event={EVENTS.CLICKED_PHONE}
               eventProps={{ location: "mobile_menu", therapist: "clinic" }}
               className="btn btn-outline w-full"
             >
-              <Phone /> Ring {clinic.phone}
+              <Phone className="shrink-0" />
+              <span>Ring <PhoneText>{clinic.phone}</PhoneText></span>
             </TrackedLink>
           </div>
         </nav>

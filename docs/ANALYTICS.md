@@ -40,7 +40,10 @@ Written for whoever (human or Claude) analyses the traffic later. Source of trut
 | `cookie_consent` | `choice` | Banner |
 
 ### `location` values for `clicked_booking_osteopati`
-Landing page (deliberately low-key, see note): `landing_osteopat_band`, `landing_behandlere_therapist_card`.
+Landing page: `landing_osteopat_band` (the private card in the "two offers" section), `landing_behandlere_therapist_card`.
+Header "Bestill time" menu (two choices, all pages): `header_menu`, and `mobile_menu` in the mobile menu. Opening the
+menu fires `clicked_cta` (`cta: bestill_time`, `location: header`); the municipal choice fires `clicked_booking_fysioterapi`.
+The hero's private CTA fires `clicked_cta` (`cta: kontakt_privat_tilbud`) and leads to `/bestill-time#osteopat`.
 Funnel pages: `hero`, `hero_therapist_card`, `header`, `mobile_menu`, `mobile_sticky_bar`, `plager`, `pricing`,
 `osteopati_bottom`, `ultralyd_bottom`. Elsewhere: `article_sidebar`, `booking_page`.
 

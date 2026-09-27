@@ -1,6 +1,10 @@
-import { clinic, formatPrice, prices, SITE_URL, therapists } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { formatPrice, SITE_URL } from "@/lib/site";
 
-export const clinicJsonLd = {
+/** A function, not a constant: prices and contact info are editable in /admin. */
+export const getClinicJsonLd = () => {
+  const { clinic, prices, therapists } = getContent();
+  return {
   "@context": "https://schema.org",
   "@type": ["MedicalClinic", "LocalBusiness"],
   "@id": `${SITE_URL}/#clinic`,
@@ -9,7 +13,7 @@ export const clinicJsonLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/logo/logo-horizontal.svg`,
   image: `${SITE_URL}/opengraph-image`,
-  telephone: "+4766780411",
+  telephone: clinic.phoneHref.replace("tel:", ""),
   email: clinic.email,
   address: {
     "@type": "PostalAddress",
@@ -35,6 +39,7 @@ export const clinicJsonLd = {
       description: formatPrice(p.price),
     })),
   },
+  };
 };
 
 export const faqJsonLd = (items: { q: string; a: string }[]) => ({

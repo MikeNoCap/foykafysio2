@@ -4,17 +4,21 @@ import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { TrackPageView, TrackSection } from "@/components/analytics/TrackView";
 import { ArrowRight, Check, Clock, Mail, Phone, Pin } from "@/components/Icons";
 import { LazyEmbed } from "@/components/LazyEmbed";
-import { CheckList, FysioCtaBand } from "@/components/Sections";
+import { CheckList } from "@/components/Sections";
 import { TherapistCard } from "@/components/TherapistCard";
 import { EVENTS } from "@/lib/analytics";
-import { clinic, formatPrice, hege, services, therapists } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { formatPrice, services } from "@/lib/site";
+import { EmailText, PhoneText } from "@/components/ContactText";
 
 export default function Home() {
+  const { clinic, hege, therapists, priceOf } = getContent();
+  const consultation = priceOf("konsultasjon");
   return (
     <>
       <TrackPageView funnelStep="landing_viewed" />
 
-      {/* ---------- HERO: physiotherapy institute first ---------- */}
+      {/* ---------- HERO: institute identity, with the municipal and the private offer side by side ---------- */}
       <section className="relative overflow-hidden">
         <div aria-hidden className="blob absolute -top-40 -right-40 size-[38rem] bg-mint-200/70" />
         <div aria-hidden className="blob-2 absolute top-72 -left-52 size-[28rem] bg-mint-100" />
@@ -26,9 +30,8 @@ export default function Home() {
               Bedre helse og bevegelse – <span className="text-primary-dark">i hjertet av Asker</span>
             </h1>
             <p className="lead mt-6 max-w-xl">
-              Vi tilbyr <strong>allmenn fysioterapi</strong> og <strong>psykomotorisk fysioterapi</strong>.
-              Alle fysioterapeutene våre har kommunal driftsavtale – du betaler kun egenandel, og
-              frikort gjelder.
+              Hos oss får du <strong>allmenn og psykomotorisk fysioterapi</strong> med kommunal
+              driftsavtale, og <strong>privat osteopati og fysioterapi</strong> med time raskt.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -38,20 +41,20 @@ export default function Home() {
                 eventProps={{ location: "hero" }}
                 className="btn btn-dark btn-lg"
               >
-                Kontakt en fysioterapeut
+                Kontakt – kommunalt tilbud
               </TrackedLink>
               <TrackedLink
-                href="#tjenester"
+                href="/bestill-time#osteopat"
                 event={EVENTS.CLICKED_CTA}
-                eventProps={{ cta: "se_tjenester", location: "hero" }}
+                eventProps={{ cta: "kontakt_privat_tilbud", location: "hero" }}
                 className="btn btn-outline btn-lg"
               >
-                Våre behandlingstilbud
+                Kontakt – privat tilbud
               </TrackedLink>
             </div>
 
             <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.95rem] font-semibold text-secondary">
-              {["Kun egenandel – frikort gjelder", "Ingen henvisning nødvendig", "Nye lokaler i Erteløkka 1"].map((t) => (
+              {["Driftsavtale med Asker kommune", "Privat osteopat – time raskt", "Ingen henvisning nødvendig"].map((t) => (
                 <li key={t} className="flex items-center gap-2">
                   <Check width={18} height={18} strokeWidth={3} className="text-primary-dark" /> {t}
                 </li>
@@ -59,33 +62,40 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Core offer card: the two main disciplines */}
+          {/* Offer card: every treatment, grouped by how it is paid for */}
           <div className="relative mx-auto w-full max-w-md">
             <div aria-hidden className="blob absolute -inset-5 rotate-6 bg-primary/90" />
             <div className="on-dark relative rounded-[2.5rem] bg-secondary p-7 text-white shadow-soft sm:p-9">
               <div className="flex items-center justify-between gap-3">
-                <span className="chip bg-primary text-secondary">Driftsavtale med Asker kommune</span>
+                <h2 className="font-display text-3xl font-extrabold text-white">Dette tilbyr vi</h2>
                 <Image src="/logo/logo-horizontal-light.svg" alt="" width={77} height={48} className="h-12 w-auto opacity-90" />
               </div>
-              <h2 className="mt-5 font-display text-3xl font-extrabold text-white">Dette tilbyr vi</h2>
-              <ul className="mt-5 grid gap-3">
-                {services.filter((s) => s.agreement === "kommunal").map((s) => (
-                  <li key={s.href}>
-                    <TrackedLink
-                      href={s.href}
-                      event={EVENTS.CLICKED_SERVICE_CARD}
-                      eventProps={{ service: s.title, location: "hero_card" }}
-                      className="group flex items-center justify-between gap-3 rounded-2xl bg-white/10 px-5 py-4 font-display text-lg font-bold text-white transition hover:bg-white/20"
-                    >
-                      {s.title}
-                      <ArrowRight className="shrink-0 text-primary transition group-hover:translate-x-1" />
-                    </TrackedLink>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 text-[0.95rem] text-white/80">
-                Du betaler kun egenandel dersom du ikke har frikort. Du trenger ikke henvisning fra lege.
-              </p>
+              {(
+                [
+                  { agreement: "kommunal", label: "Driftsavtale med Asker kommune" },
+                  { agreement: "privat", label: "Privat tilbud · time raskt" },
+                ] as const
+              ).map((group) => (
+                <div key={group.agreement} className="mt-5">
+                  <span className="chip bg-primary text-secondary">{group.label}</span>
+                  <ul className="mt-3 grid gap-2">
+                    {services.filter((s) => s.agreement === group.agreement).map((s) => (
+                      <li key={s.href}>
+                        <TrackedLink
+                          href={s.href}
+                          event={EVENTS.CLICKED_SERVICE_CARD}
+                          eventProps={{ service: s.title, location: "hero_card" }}
+                          className="group flex items-center justify-between gap-3 rounded-2xl bg-white/10 px-5 py-3 font-display text-lg font-bold text-white transition hover:bg-white/20"
+                        >
+                          {s.title}
+                          <ArrowRight className="shrink-0 text-primary transition group-hover:translate-x-1" />
+                        </TrackedLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <p className="mt-5 text-[0.95rem] text-white/80">Du trenger ikke henvisning fra lege.</p>
             </div>
           </div>
         </div>
@@ -98,17 +108,15 @@ export default function Home() {
           <h2 className="h2 mt-3">Våre behandlingstilbud</h2>
           <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
             {services.map((s, i) => (
-              <li key={s.href} className={i < 2 ? "lg:col-span-3" : "lg:col-span-2"}>
+              <li key={s.href} className={i < 3 ? "lg:col-span-2" : "lg:col-span-3"}>
                 <TrackedLink
                   href={s.href}
                   event={EVENTS.CLICKED_SERVICE_CARD}
                   eventProps={{ service: s.title, location: "tjenester" }}
-                  className={`group flex h-full flex-col rounded-[2rem] p-7 shadow-soft transition hover:-translate-y-1 ${
-                    i < 2 ? "bg-gradient-to-br from-mint-200 to-mint-100 sm:p-9" : "bg-white"
-                  }`}
+                  className="group flex h-full flex-col rounded-[2rem] bg-white p-7 shadow-soft transition hover:-translate-y-1"
                 >
-                  <span className={`chip self-start ${s.agreement === "privat" ? "bg-secondary text-white" : i < 2 ? "bg-white text-ink" : "bg-mint-100 text-ink"}`}>{s.badge}</span>
-                  <h3 className={`mt-4 font-display font-extrabold ${i < 2 ? "text-3xl" : "text-2xl"}`}>{s.title}</h3>
+                  <span className={`chip self-start ${s.agreement === "privat" ? "bg-secondary text-white" : "bg-mint-200 text-ink"}`}>{s.badge}</span>
+                  <h3 className="mt-4 font-display text-2xl font-extrabold">{s.title}</h3>
                   <p className="mt-2 flex-1">{s.text}</p>
                   <span className="mt-5 flex items-center gap-1.5 font-display font-bold text-secondary">
                     Les mer <ArrowRight width={18} height={18} className="transition group-hover:translate-x-1" />
@@ -120,27 +128,48 @@ export default function Home() {
         </section>
       </TrackSection>
 
-      {/* ---------- DRIFTSAVTALE EXPLAINER ---------- */}
-      <section className="container-page mt-24">
-        <div className="on-dark relative overflow-hidden rounded-[2.5rem] bg-secondary p-7 text-white sm:p-12 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-14">
-          <div aria-hidden className="blob absolute -right-20 -bottom-24 size-72 bg-primary/20" />
-          <div className="relative">
-            <p className="eyebrow !text-primary">Driftsavtale med Asker kommune</p>
-            <h2 className="h2 mt-3 text-white">Du betaler kun egenandel</h2>
-            <p className="mt-4 text-white/85">
-              Alle våre fysioterapeuter har kommunal driftsavtale. Det betyr at du kun betaler egenandel
-              dersom du ikke har frikort. Vi har avtale med Helfo, og egenandelene inngår i
-              frikortordningen.
-            </p>
-            <TrackedLink href="/bestill-time#fysioterapi" event={EVENTS.CLICKED_BOOKING_FYSIOTERAPI} eventProps={{ location: "driftsavtale" }} className="btn btn-outline-light mt-7">
-              Slik bestiller du time <ArrowRight />
-            </TrackedLink>
+      {/* ---------- TWO OFFERS: municipal and private, given equal weight ---------- */}
+      <TrackSection section="osteopat_band">
+        <section className="container-page mt-24">
+          <p className="eyebrow">To tilbud under samme tak</p>
+          <h2 className="h2 mt-3">Kommunal avtale eller privat time</h2>
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <div className="flex flex-col rounded-[2.5rem] bg-mint-100 p-7 sm:p-10">
+              <span className="chip self-start bg-white text-ink">Driftsavtale med Asker kommune</span>
+              <h3 className="mt-4 font-display text-2xl font-extrabold sm:text-3xl">Fysioterapi med kommunal avtale</h3>
+              <p className="mt-3">
+                Fysioterapeutene våre har kommunal driftsavtale og avtale med Helfo. Du betaler kun
+                egenandel dersom du ikke har frikort.
+              </p>
+              <div className="mt-6 flex-1">
+                <CheckList items={["Allmenn og psykomotorisk fysioterapi", "Egenandeler inngår i frikortordningen", "Ingen henvisning nødvendig"]} />
+              </div>
+              <TrackedLink href="/bestill-time#fysioterapi" event={EVENTS.CLICKED_BOOKING_FYSIOTERAPI} eventProps={{ location: "driftsavtale" }} className="btn btn-dark mt-8 self-start">
+                Kontakt – kommunalt tilbud <ArrowRight />
+              </TrackedLink>
+            </div>
+
+            <div className="on-dark relative flex flex-col overflow-hidden rounded-[2.5rem] bg-secondary p-7 text-white sm:p-10">
+              <div aria-hidden className="blob absolute -right-20 -bottom-24 size-72 bg-primary/20" />
+              <span className="chip relative self-start bg-primary text-secondary"><Clock width={15} height={15} /> Privat tilbud · time raskt</span>
+              <h3 className="relative mt-4 font-display text-2xl font-extrabold text-white sm:text-3xl">Privat osteopat og fysioterapeut</h3>
+              <p className="relative mt-3 text-white/85">
+                {hege.name} er privatpraktiserende osteopat og fysioterapeut, og tilbyr time raskt.
+                Dette er et fullbetalt tilbud (frikort gjelder ikke).
+              </p>
+              <div className="relative mt-6 flex-1">
+                <CheckList dark items={["Osteopati og ultralydundersøkelse", ...(consultation !== undefined ? [`Konsultasjon ${formatPrice(consultation)}`] : []), "Ingen henvisning nødvendig"]} />
+              </div>
+              <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
+                <BookingButton location="landing_osteopat_band" />
+                <TrackedLink href="/osteopati" event={EVENTS.CLICKED_CTA} eventProps={{ cta: "les_mer_osteopati", location: "landing_osteopat_band" }} className="btn btn-outline-light">
+                  Les om osteopati <ArrowRight />
+                </TrackedLink>
+              </div>
+            </div>
           </div>
-          <div className="relative mt-8 lg:mt-0">
-            <CheckList dark items={["Egenandeler inngår i frikortordningen", "Ingen henvisning nødvendig", "Tett samarbeid med fastleger ved behov", "Vi tar også imot pasienter med helseforsikring"]} />
-          </div>
-        </div>
-      </section>
+        </section>
+      </TrackSection>
 
       {/* ---------- ABOUT ---------- */}
       <section id="hvem-er-vi" className="container-page mt-24">
@@ -182,28 +211,6 @@ export default function Home() {
         </section>
       </TrackSection>
 
-      {/* ---------- PRIVATE OSTEOPATH: one compact band ---------- */}
-      <TrackSection section="osteopat_band">
-        <section className="container-page mt-16">
-          <div className="rounded-[2.5rem] bg-mint-100 p-7 sm:p-10 lg:flex lg:items-center lg:justify-between lg:gap-10">
-            <div className="max-w-2xl">
-              <span className="chip bg-secondary text-white"><Clock width={15} height={15} /> Privat · time raskt</span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold sm:text-3xl">Vi har også osteopat</h2>
-              <p className="mt-3">
-                Vi har også en privatpraktiserende osteopat og fysioterapeut, {hege.name}, som tilbyr time
-                raskt. Dette er et fullbetalt tilbud (frikort gjelder ikke). Konsultasjon {formatPrice(1200)}
-              </p>
-            </div>
-            <div className="mt-6 flex shrink-0 flex-col gap-3 sm:flex-row lg:mt-0 lg:flex-col">
-              <BookingButton location="landing_osteopat_band" />
-              <TrackedLink href="/osteopati" event={EVENTS.CLICKED_CTA} eventProps={{ cta: "les_mer_osteopati", location: "landing_osteopat_band" }} className="btn btn-outline">
-                Les om osteopati <ArrowRight />
-              </TrackedLink>
-            </div>
-          </div>
-        </section>
-      </TrackSection>
-
       {/* ---------- PRACTICAL INFO ---------- */}
       <section id="praktisk-info" className="container-page mt-24">
         <p className="eyebrow">Godt å vite</p>
@@ -234,7 +241,7 @@ export default function Home() {
                 <div>
                   <h3 className="font-display text-lg font-bold">Adresse</h3>
                   <p>{clinic.street}, {clinic.postalCode} {clinic.city}</p>
-                  <p className="text-[0.95rem] font-semibold">{clinic.addressNote}</p>
+                  {clinic.addressNote && <p className="text-[0.95rem] font-semibold">{clinic.addressNote}</p>}
                   <TrackedLink href={clinic.mapsUrl} target="_blank" event={EVENTS.CLICKED_OUTBOUND_LINK} eventProps={{ location: "kontakt", link: "google_maps" }} className="link">
                     Åpne i Google Maps
                   </TrackedLink>
@@ -245,12 +252,12 @@ export default function Home() {
                 <div>
                   <h3 className="font-display text-lg font-bold">Telefon</h3>
                   <p>
-                    Klinikken:{" "}
-                    <TrackedLink href={clinic.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "kontakt", therapist: "clinic" }} className="link">{clinic.phone}</TrackedLink>
+                    Kommunalt tilbud:{" "}
+                    <TrackedLink href={clinic.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "kontakt", therapist: "clinic" }} className="link"><PhoneText>{clinic.phone}</PhoneText></TrackedLink>
                   </p>
                   <p>
-                    Osteopat {hege.name.split(" ")[0]}:{" "}
-                    <TrackedLink href={hege.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "kontakt", therapist: "hege" }} className="link">{hege.phone}</TrackedLink>
+                    Privat tilbud ({hege.name}):{" "}
+                    <TrackedLink href={hege.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "kontakt", therapist: "hege" }} className="link"><PhoneText>{hege.phone}</PhoneText></TrackedLink>
                   </p>
                 </div>
               </div>
@@ -258,7 +265,14 @@ export default function Home() {
                 <span className="blob inline-flex size-12 shrink-0 items-center justify-center bg-mint-200 text-secondary"><Mail /></span>
                 <div>
                   <h3 className="font-display text-lg font-bold">E-post</h3>
-                  <TrackedLink href={`mailto:${clinic.email}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location: "kontakt", therapist: "clinic" }} className="link break-all">{clinic.email}</TrackedLink>
+                  <p>
+                    Kommunalt tilbud:{" "}
+                    <TrackedLink href={`mailto:${clinic.email}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location: "kontakt", therapist: "clinic" }} className="link"><EmailText>{clinic.email}</EmailText></TrackedLink>
+                  </p>
+                  <p>
+                    Privat tilbud:{" "}
+                    <TrackedLink href={`mailto:${hege.email}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location: "kontakt", therapist: "hege" }} className="link"><EmailText>{hege.email}</EmailText></TrackedLink>
+                  </p>
                   <p className="mt-1 text-sm">Ikke send sensitive helseopplysninger på e-post.</p>
                 </div>
               </div>
@@ -272,7 +286,6 @@ export default function Home() {
         </section>
       </TrackSection>
 
-      <FysioCtaBand location="landing_bottom" />
     </>
   );
 }

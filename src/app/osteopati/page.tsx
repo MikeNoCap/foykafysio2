@@ -9,14 +9,23 @@ import { BookingCtaBand, CheckList, HegeContactOptions } from "@/components/Sect
 import { TherapistPortrait } from "@/components/TherapistCard";
 import { EVENTS } from "@/lib/analytics";
 import { breadcrumbJsonLd, faqJsonLd } from "@/lib/seo";
-import { clinic, hege } from "@/lib/site";
+import { getContent, priceSummary } from "@/lib/content";
+import { formatPrice } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Osteopat i Asker – time raskt",
-  description:
-    "Osteopati hos Føyka i Asker sentrum. Helhetlig, skånsom manuell behandling av rygg, nakke, skulder, hofte, hodepine og mer. Time raskt, ingen henvisning. Konsultasjon 1200,-.",
-  alternates: { canonical: "/osteopati" },
+/** "Konsultasjon 1200,-" – the price is editable in /admin, and the row may have been removed. */
+const consultationLabel = () => {
+  const price = getContent().priceOf("konsultasjon");
+  return price === undefined ? null : `Konsultasjon ${formatPrice(price)}`;
 };
+
+export function generateMetadata(): Metadata {
+  const consultation = consultationLabel();
+  return {
+    title: "Osteopat i Asker – time raskt",
+    description: `Osteopati hos Føyka i Asker sentrum. Helhetlig, skånsom manuell behandling av rygg, nakke, skulder, hofte, hodepine og mer. Time raskt, ingen henvisning.${consultation ? ` ${consultation}.` : ""}`,
+    alternates: { canonical: "/osteopati" },
+  };
+}
 
 const conditions = [
   "Smerter og plager fra muskel-skjelett apparatet",
@@ -29,7 +38,7 @@ const conditions = [
   "Akutte og belastningsrelaterte plager, idrettsskader",
 ];
 
-const faq = [
+const baseFaq = [
   {
     q: "Trenger jeg henvisning fra lege?",
     a: "Nei. Du trenger ikke henvisning for å bestille time hos osteopaten. Osteopaten samarbeider med annet helsepersonell når det er nødvendig.",
@@ -50,13 +59,14 @@ const faq = [
     q: "Passer osteopati for meg?",
     a: "Osteopatibehandlingen er skånsom og passer for alle, fra spedbarn til eldre. Du blir alltid vurdert med hensyn til tegn på plager som ikke kan behandles av osteopaten, og henvises videre ved behov.",
   },
-  {
-    q: "Hva koster det?",
-    a: "Konsultasjon koster 1200,- og behandling 800,-. Ultralydundersøkelse koster 1500,- (60 minutter) eller 1100,- (30 minutter). Ultralyd som tillegg til senere konsultasjoner koster 300,-.",
-  },
 ];
 
 export default function OsteopatiPage() {
+  const { clinic, hege, prices } = getContent();
+  const faq = [
+    ...baseFaq,
+    { q: "Hva koster det?", a: `Prisene er: ${priceSummary(prices)}. Dette er et privat tilbud, og frikort gjelder ikke.` },
+  ];
   return (
     <>
       <TrackPageView event={EVENTS.VIEWED_OSTEOPATI_PAGE} funnelStep="service_page_viewed" eventProps={{ service: "osteopati" }} />
@@ -81,7 +91,7 @@ export default function OsteopatiPage() {
               </TrackedLink>
             </div>
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[0.95rem] font-semibold text-secondary">
-              {["Konsultasjon 1200,-", "Passer for alle aldre", `${clinic.street}, ${clinic.city}`].map((t) => (
+              {[consultationLabel(), "Passer for alle aldre", `${clinic.street}, ${clinic.city}`].filter((t) => t !== null).map((t) => (
                 <li key={t} className="flex items-center gap-2"><Check width={18} height={18} strokeWidth={3} className="text-primary-dark" /> {t}</li>
               ))}
             </ul>

@@ -6,7 +6,9 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MobileBookingBar } from "@/components/MobileBookingBar";
-import { clinicJsonLd } from "@/lib/seo";
+import { NoticeBanner } from "@/components/NoticeBanner";
+import { getContent } from "@/lib/content";
+import { getClinicJsonLd } from "@/lib/seo";
 import { clinic, SITE_URL } from "@/lib/site";
 
 // Saira: squared, robust geometric sans – the closest open match to "Industry".
@@ -40,6 +42,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#023535" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const content = getContent();
   return (
     <html lang="nb" className={`${heading.variable} ${body.variable}`}>
       <body>
@@ -50,15 +53,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Hopp til innhold
         </a>
         <PostHogProvider>
-          <Header />
+          <NoticeBanner notice={content.notice} />
+          <Header phone={content.clinic.phone} phoneHref={content.clinic.phoneHref} email={content.clinic.email} />
           <main id="innhold">{children}</main>
           <Footer />
-          <MobileBookingBar />
+          <MobileBookingBar hege={{ name: content.hege.name, phoneHref: content.hege.phoneHref }} />
           <CookieConsent />
         </PostHogProvider>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(clinicJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(getClinicJsonLd()) }}
         />
       </body>
     </html>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { clinic } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { EmailText } from "@/components/ContactText";
 
 export const metadata: Metadata = {
   title: "Personvern og informasjonskapsler",
@@ -8,9 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function Personvern() {
+  const { clinic } = getContent();
   return (
     <div className="container-page pt-10 lg:pt-16">
-      <h1 className="h1">Personvern og informasjonskapsler</h1>
+      <h1 className="h1">Personvern og informasjons&shy;kapsler</h1>
       <div className="prose-ff mt-8 max-w-[68ch]">
         <p>
           Denne siden forklarer hvilke opplysninger som samles inn når du besøker nettsiden til {clinic.name}.
@@ -35,7 +37,7 @@ export default function Personvern() {
         </p>
         <h2>Kontakt</h2>
         <p>
-          Spørsmål om personvern kan rettes til <a href={`mailto:${clinic.email}`}>{clinic.email}</a>.
+          Spørsmål om personvern kan rettes til <a href={`mailto:${clinic.email}`}><EmailText>{clinic.email}</EmailText></a>.
           Ikke send sensitive helseopplysninger på e-post.
         </p>
       </div>

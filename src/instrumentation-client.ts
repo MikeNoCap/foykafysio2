@@ -24,6 +24,8 @@ if (key) {
     persistence: granted ? "localStorage+cookie" : "memory",
     disable_session_recording: !granted,
     session_recording: { maskAllInputs: true },
+    // Keep the clinic's own /admin visits out of the funnel data.
+    before_send: (event) => (window.location.pathname.startsWith("/admin") ? null : event),
     loaded: (ph) => {
       if (process.env.NODE_ENV === "development") ph.debug(false);
       ph.register({ site_version: "2026-redesign" });

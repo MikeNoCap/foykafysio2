@@ -5,7 +5,8 @@ import { Phone } from "@/components/Icons";
 import { FysioCtaBand } from "@/components/Sections";
 import { EVENTS } from "@/lib/analytics";
 import { breadcrumbJsonLd } from "@/lib/seo";
-import { clinic, therapists } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { EmailText, PhoneText } from "@/components/ContactText";
 
 /**
  * Layout for the municipal physiotherapy articles. Informational first:
@@ -25,6 +26,7 @@ export function ArticleLayout({
   field: string;
   children: React.ReactNode;
 }) {
+  const { clinic, therapists } = getContent();
   const who = therapists.filter((t) => t.agreement === "kommunal" && t.fields.includes(field));
   return (
     <>
@@ -54,16 +56,16 @@ export function ArticleLayout({
                 <li key={t.id} className="rounded-2xl bg-mint-50 p-3.5">
                   <p className="font-display font-bold text-secondary">{t.name}</p>
                   <TrackedLink href={t.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "article_sidebar", therapist: t.id }} className="link flex items-center gap-1.5 text-[0.95rem]">
-                    <Phone width={15} height={15} /> {t.phone}
+                    <Phone width={15} height={15} className="shrink-0" /> <PhoneText>{t.phone}</PhoneText>
                   </TrackedLink>
-                  <TrackedLink href={`mailto:${t.email}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location: "article_sidebar", therapist: t.id }} className="link text-[0.95rem] break-all">
-                    {t.email}
+                  <TrackedLink href={`mailto:${t.email}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location: "article_sidebar", therapist: t.id }} className="link text-[0.95rem]">
+                    <EmailText>{t.email}</EmailText>
                   </TrackedLink>
                 </li>
               ))}
             </ul>
             <TrackedLink href={clinic.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "article_sidebar", therapist: "clinic" }} className="btn btn-dark mt-4 w-full">
-              <Phone /> {clinic.phone}
+              <Phone className="shrink-0" /> <PhoneText>{clinic.phone}</PhoneText>
             </TrackedLink>
           </div>
           <div className="rounded-[2rem] bg-mint-100 p-6">

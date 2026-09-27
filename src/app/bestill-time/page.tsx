@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { BookingButton } from "@/components/BookingButton";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { TrackPageView } from "@/components/analytics/TrackView";
-import { Clock, Phone } from "@/components/Icons";
+import { Clock, Mail, Phone } from "@/components/Icons";
 import { PriceList } from "@/components/PriceList";
 import { CheckList, HegeContactOptions } from "@/components/Sections";
 import { TherapistCard } from "@/components/TherapistCard";
 import { EVENTS } from "@/lib/analytics";
-import { clinic, HAS_ONLINE_BOOKING, hege, therapists } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { HAS_ONLINE_BOOKING } from "@/lib/site";
+import { EmailText, PhoneText } from "@/components/ContactText";
 
 export const metadata: Metadata = {
   title: "Bestill time",
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default function BestillTimePage() {
+  const { clinic, hege, therapists } = getContent();
   const fysios = therapists.filter((t) => t.agreement === "kommunal");
   return (
     <>
@@ -25,14 +28,18 @@ export default function BestillTimePage() {
       <section className="container-page pt-10 lg:pt-16">
         <h1 className="h1">Bestill time</h1>
         <p className="lead mt-4 max-w-2xl">Du trenger ingen henvisning. Velg tilbudet som passer deg.</p>
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <a href="#fysioterapi" className="btn btn-dark">Fysioterapi – kommunal avtale</a>
+          <a href="#osteopat" className="btn btn-outline">Osteopat – privat tilbud</a>
+        </div>
       </section>
 
-      {/* ---------- HEGE: primary ---------- */}
+      {/* ---------- HEGE: private ---------- */}
       <section id="osteopat" className="container-page mt-10">
         <div className="on-dark relative overflow-hidden rounded-[2.5rem] bg-secondary p-7 text-white sm:p-12 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
           <div aria-hidden className="blob absolute -top-28 -right-24 size-80 bg-primary/15" />
           <div className="relative">
-            <span className="chip bg-primary text-secondary"><Clock width={15} height={15} /> Time raskt</span>
+            <span className="chip bg-primary text-secondary"><Clock width={15} height={15} /> Privat tilbud · time raskt</span>
             <h2 className="h2 mt-4 text-white">Osteopat {hege.name}</h2>
             <p className="mt-3 text-white/85">
               Osteopati og ultralydundersøkelse. Privat, fullbetalt tilbud (frikort gjelder ikke).
@@ -63,12 +70,19 @@ export default function BestillTimePage() {
         <h2 className="h2 mt-3">Fysioterapeut med kommunal avtale</h2>
         <p className="mt-4 max-w-3xl">
           Fysioterapeutene våre har kommunal driftsavtale. Du betaler kun egenandel, og egenandelene
-          inngår i frikortordningen. Ta kontakt direkte med behandleren du ønsker time hos, eller ring
-          klinikken.
+          inngår i frikortordningen. Send en e-post til klinikken, eller ta kontakt direkte med
+          behandleren du ønsker time hos.
         </p>
-        <TrackedLink href={clinic.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "booking_page", therapist: "clinic" }} className="btn btn-dark mt-6">
-          <Phone /> Ring klinikken: {clinic.phone}
-        </TrackedLink>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <TrackedLink href={`mailto:${clinic.email}?subject=${encodeURIComponent("Timebestilling fysioterapi")}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location: "booking_page", therapist: "clinic" }} className="btn btn-dark">
+            <Mail className="shrink-0" /> <EmailText>{clinic.email}</EmailText>
+          </TrackedLink>
+          <TrackedLink href={clinic.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location: "booking_page", therapist: "clinic" }} className="btn btn-outline">
+            <Phone className="shrink-0" />
+            <span>Ring klinikken: <PhoneText>{clinic.phone}</PhoneText></span>
+          </TrackedLink>
+        </div>
+        <p className="mt-3 text-sm">Ikke send sensitive helseopplysninger på e-post.</p>
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {fysios.map((t) => (
             <TherapistCard key={t.id} t={t} location="booking_page" />

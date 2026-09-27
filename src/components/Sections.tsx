@@ -2,7 +2,9 @@ import { BookingButton } from "@/components/BookingButton";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { ArrowRight, Check, Mail, Message, Phone } from "@/components/Icons";
 import { EVENTS } from "@/lib/analytics";
-import { HAS_ONLINE_BOOKING, hege } from "@/lib/site";
+import { getContent } from "@/lib/content";
+import { HAS_ONLINE_BOOKING } from "@/lib/site";
+import { PhoneText } from "@/components/ContactText";
 
 export function CheckList({ items, dark = false }: { items: string[]; dark?: boolean }) {
   return (
@@ -21,13 +23,15 @@ export function CheckList({ items, dark = false }: { items: string[]; dark?: boo
 
 /** Direct contact options for Hege: the fallback (and complement) to online booking. */
 export function HegeContactOptions({ location, dark = false }: { location: string; dark?: boolean }) {
+  const { hege } = getContent();
   const cls = dark ? "btn btn-outline-light" : "btn btn-outline";
   return (
     <div className="flex flex-wrap gap-2.5">
       <TrackedLink href={hege.phoneHref} event={EVENTS.CLICKED_PHONE} eventProps={{ location, therapist: "hege" }} className={cls}>
-        <Phone /> Ring {hege.phone}
+        <Phone className="shrink-0" />
+        <span>Ring <PhoneText>{hege.phone}</PhoneText></span>
       </TrackedLink>
-      <TrackedLink href={`sms:+4797080097`} event={EVENTS.CLICKED_SMS} eventProps={{ location, therapist: "hege" }} className={cls}>
+      <TrackedLink href={hege.phoneHref.replace("tel:", "sms:")} event={EVENTS.CLICKED_SMS} eventProps={{ location, therapist: "hege" }} className={cls}>
         <Message /> Send SMS
       </TrackedLink>
       <TrackedLink href={`mailto:${hege.email}?subject=${encodeURIComponent("Timebestilling osteopati")}`} event={EVENTS.CLICKED_EMAIL} eventProps={{ location, therapist: "hege" }} className={cls}>

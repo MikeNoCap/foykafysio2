@@ -4,6 +4,7 @@ import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { Mail, Phone } from "@/components/Icons";
 import { EVENTS } from "@/lib/analytics";
 import type { Therapist } from "@/lib/site";
+import { EmailText, PhoneText } from "@/components/ContactText";
 
 const initials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").slice(0, 2);
@@ -25,7 +26,6 @@ export function TherapistPortrait({ t, className = "" }: { t: Therapist; classNa
 
 export function TherapistCard({ t, location }: { t: Therapist; location: string }) {
   const isPrivate = t.agreement === "privat";
-  const [local, domain] = t.email.split("@");
   return (
     <li className="card flex flex-col">
       <TherapistPortrait t={t} className="mx-auto w-44" />
@@ -52,7 +52,7 @@ export function TherapistCard({ t, location }: { t: Therapist; location: string 
           eventProps={{ location, therapist: t.id }}
           className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-mint-100 px-4 font-semibold text-secondary hover:bg-mint-200"
         >
-          <Phone width={18} height={18} /> {t.phone}
+          <Phone width={18} height={18} className="shrink-0" /> <PhoneText>{t.phone}</PhoneText>
         </TrackedLink>
         <TrackedLink
           href={`mailto:${t.email}`}
@@ -61,10 +61,8 @@ export function TherapistCard({ t, location }: { t: Therapist; location: string 
           className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-mint-100 px-3 text-[0.85rem] font-semibold text-secondary hover:bg-mint-200"
         >
           <Mail width={18} height={18} className="shrink-0" />
-          {/* Only allow a line break after the @, never mid-word */}
           <span className="min-w-0 text-center leading-tight">
-            {local}@<wbr />
-            {domain}
+            <EmailText>{t.email}</EmailText>
           </span>
         </TrackedLink>
       </div>
