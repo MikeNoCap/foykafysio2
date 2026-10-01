@@ -74,7 +74,20 @@ export function Footer() {
       </div>
       <div className="border-t border-white/15">
         <div className="container-page flex flex-col gap-2 py-5 text-sm text-white/70 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {clinic.name}</p>
+          <p>
+            © {new Date().getFullYear()} {clinic.name}
+            <span className="mx-2 text-white/40" aria-hidden>·</span>
+            Levert av{" "}
+            <TrackedLink
+              href="https://thorvaldsendigital.no"
+              target="_blank"
+              event={EVENTS.CLICKED_OUTBOUND_LINK}
+              eventProps={{ location: "footer", link: "thorvaldsen_digital" }}
+              className="hover:text-white hover:underline"
+            >
+              Thorvaldsen Digital
+            </TrackedLink>
+          </p>
           <CookieSettingsButton />
         </div>
       </div>
